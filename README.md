@@ -1,59 +1,36 @@
-# QA Automation Interview – Playwright + TypeScript
+# QA Automation Interview – reference solution
 
-This repository contains a small demo web shop (`app/`) and a Playwright test framework that tests it.
-A previous team member wrote the framework quickly. It "mostly works", but the team says it is slow,
-sometimes flaky, and hard to extend.
-
-In the interview you will **review it as if it were a pull request**, explain what you would change and why,
-and do a few small hands-on exercises together with the interviewer.
-You may use the [Playwright documentation](https://playwright.dev/docs/intro) at any time.
-
-## Setup
-
-Requirements: Node.js 18 or newer.
+The same demo app as the candidate repo, with a cleaned-up test framework. See `../INTERVIEWER_GUIDE.md` for what changed and why.
 
 ```bash
 npm install
 npx playwright install chromium
-npm test        # runs the tests and starts the demo app automatically
-npm run app     # optional: start the app yourself at http://localhost:3000
+npm test             # all tests
+npm run test:smoke   # tests tagged @smoke
+npm run typecheck
 ```
 
-One test currently fails. That is expected.
+## Conventions
 
-## The application
+- Import `test` and `expect` only from `@fixtures`.
+- Locators: `getByRole` → `getByLabel` → `getByPlaceholder` → `getByText`. No test IDs, XPath or CSS. If something can't be found this way, report it as an accessibility bug in the app.
+- Page objects hold locators and actions only. Specs hold the assertions.
+- Seed and check data through the `api` fixture, which shares the page's cookie. Each data-changing test gets its own `user`.
+- Web-first assertions only. No hard waits, no higher timeouts, no retries, no serial mode.
+- Titles use `TC-<ID>: <behaviour>` with IDs from `tests/TEST_PLAN.md`. Tags go on `test()`: a level (`@e2e` or `@api`) plus `@smoke`.
+- Strict TypeScript, no `any`, no non-null assertions.
+- Before calling a change done: `npm run typecheck` and the affected test with `--repeat-each=20`.
 
-| Page | What it does |
-|---|---|
-| `/login` | Log in. Default user: `admin@shop.test` / `Admin123!` |
-| `/products` | Product list, loaded with a short delay. "Add to cart" updates the cart badge and shows a short notification |
-| `/cart` | Cart items, total and "Checkout". Checkout is disabled when the cart is empty |
-| `/checkout` | Name and address form. "Place order" processes the payment, then shows "Order confirmed" |
-| `/orders` | Order history. Paid orders can be cancelled after a confirmation dialog |
-
-Data is kept in memory and resets when the app restarts.
-
-### API (useful for test setup)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/login` | `{ email, password }` → sets the session cookie |
-| GET / POST / DELETE | `/api/cart` | Read the cart / add `{ productId }` / empty the cart |
-| GET | `/api/orders` | Orders of the logged-in user |
-| POST | `/api/test/users` | Create a user `{ email?, password?, name? }` → returns the user with its password |
-| DELETE | `/api/test/users/:id` | Delete a user and their data |
-| POST | `/api/test/orders` | Create a paid order `{ userId, productIds }` |
-| POST | `/api/test/reset` | Reset all data |
-
-`/api/test/*` routes only work when the app runs with `ENABLE_TEST_ROUTES=true`. The Playwright config already sets this.
-
-## Project structure
+## Layout
 
 ```
-app/            demo application (not part of the review)
-pages/          page objects
-tests/          test specs
-utils/          test data and helpers
-TEST_PLAN.md    test case IDs used in test titles
+app/                    demo application
+tests/
+  TEST_PLAN.md          test case IDs
+  api/ShopApi.ts        API client for seeding and checking data
+  fixtures/index.ts     test, expect, api, user, newUser, paidOrder, page-object fixtures
+  pages/                page objects
+  setup/auth.setup.ts   logs in a read-only user once and saves the session
+  specs/                test specs
 playwright.config.ts
 ```

@@ -1,6 +1,6 @@
 # Test plan – Demo Shop
 
-Test titles use `TC-<ID>: <behaviour>` with the IDs below. Not every ID is automated yet.
+Test titles use `TC-<ID>: <behaviour>` with the IDs below. Every test is tagged with a level (`@e2e` or `@api`) and `@smoke`.
 
 | ID | Behaviour | Level |
 |---|---|---|

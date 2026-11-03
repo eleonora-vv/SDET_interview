@@ -1,11 +1,12 @@
 {
-  "name": "qa-interview-playwright",
+  "name": "qa-interview-playwright-solution",
   "version": "1.0.0",
   "private": true,
-  "description": "Small Playwright + TypeScript framework used for a QA code-review interview",
+  "description": "Reference solution for the QA code-review interview",
   "scripts": {
-    "app": "node app/server.js",
+    "app": "ENABLE_TEST_ROUTES=true node app/server.js",
     "test": "playwright test",
+    "test:smoke": "playwright test --grep @smoke",
     "test:ui": "playwright test --ui",
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit"

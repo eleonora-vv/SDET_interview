@@ -3,9 +3,16 @@
     "target": "ES2022",
     "module": "commonjs",
     "strict": true,
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures": ["tests/fixtures/index.ts"],
+      "@api/*": ["tests/api/*"],
+      "@pages/*": ["tests/pages/*"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules"]
