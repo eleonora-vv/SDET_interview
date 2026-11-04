@@ -2,6 +2,10 @@
 
 The same demo app as the candidate repo, with a cleaned-up test framework. See `../INTERVIEWER_GUIDE.md` for what changed and why.
 
+![Demo shop products page](docs/app.png)
+
+[Watch a short walkthrough of the app](docs/walkthrough.webm) (login, add to cart, checkout, cancel order).
+
 ```bash
 npm install
 npx playwright install chromium
