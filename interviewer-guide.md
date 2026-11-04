@@ -125,18 +125,6 @@ Use this list to judge the candidate's changes. Optionally, hand it to them befo
 
 ---
 
-## 7. Scoring (1–4 per area)
-
-A **senior hire** should average 3 or more, with no 1 in auto-waiting or data.
-
-| Area | 1 | 2 | 3 | 4 |
-|---|---|---|---|---|
-| Locators and page objects | Keeps XPath and CSS | Knows `getByRole` but mixes it with old selectors | Role and label locators, `Locator` fields, assertions in specs | Also links locators to accessibility and uses page-object fixtures |
-| Auto-waiting | Adds more waits | Removes waits but keeps `isVisible()` + `expect` | Web-first assertions throughout; handles the dialog | Explains actionability, `expect.poll`, `waitForResponse` |
-| Data | Keeps the shared admin user and order | Spots the problem; suggests running serially | Own data per test via the API, with cleanup | Fixture scopes, API vs. database seeding, asks developers for test routes |
-| Session | UI login everywhere is fine | Knows `storageState` exists | Uses API login or a setup project correctly | Separates read-only from data-changing tests, handles roles and secrets |
-| Architecture | No opinion | Fixes files one by one | Groups and prioritises; config and CI improvements | Plans how the framework evolves; flaky-test policy; test layers |
-
 **Red flags:**
 - Fixes flakiness with retries or higher timeouts
 - Defends hard waits
