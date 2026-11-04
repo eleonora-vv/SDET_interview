@@ -12,6 +12,10 @@ You may use the [Playwright documentation](https://playwright.dev/docs/intro) at
 
 Requirements: Node.js 18 or newer.
 
+![Demo shop products page](docs/app.png)
+
+[Watch a short walkthrough of the app](docs/walkthrough.webm) (login, add to cart, checkout, cancel order).
+
 ```bash
 npm install
 npx playwright install chromium
