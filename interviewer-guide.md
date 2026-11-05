@@ -2,7 +2,7 @@
 
 Share the repository from `main` branch with the candidate during live interview. Keep this guide and `solution/` to yourself.
 
-Topics covered: architecture, data management, session management, page objects and locators, and auto-waiting.
+Topics covered: how quickly the candidate learns a new product, architecture, data management, session management, page objects and locators, and auto-waiting.
 
 ---
 
@@ -11,21 +11,48 @@ Topics covered: architecture, data management, session management, page objects 
 1. Run `npm install`, then `npx playwright install chromium`, then `npm test`.
    Expected result: **5 passed, 1 failed (TC-07)**. The failure is intentional.
 2. Share your screen with the assignment.
-3. Keep `solution/` open on your side. It follows the team conventions listed in section 6. It has 14 tests plus a setup step, all green, verified with `--repeat-each=20`.
+3. Keep `solution/` open on your side. It follows the team conventions listed in section 7. It has 14 tests plus a setup step, all green, verified with `--repeat-each=20`.
 
 ## 2. Plan
 
 - **0–5 min:** Intro, walk through the README
-- **5–30 min:** **Code review.** The candidate reads the code and talks through it; you tick issues off section 3
-- **30–70 min:** **Hands-on.** Exercises E1, E2, E3 (section 4)
-- **70–85 min:** **Discussion** (section 5)
+- **5–15 min:** **Learning the product** (section 3). The candidate explores the app and explains how it works
+- **15–40 min:** **Code review.** The candidate reads the code and talks through it; you tick issues off section 4
+- **40–55 min:** **Discussion** (section 5, pick 4–5)
+- **55–85 min:** **Hands-on, optional.** Pick from exercises E1, E2, E3 (section 6)
 - **85–90 min:** The candidate's questions
 
-Let them talk for about 10 minutes before you steer. Use the hint for each issue in section 3 only if they skip a topic completely.
+Let them talk for about 10 minutes before you steer. Use the hint for each issue in section 4 only if they skip a topic completely.
 
 ---
 
-## 3. The 12 planted issues
+## 3. Learning the product (10 minutes)
+
+This part shows how fast the candidate picks up something new. Give no instructions beyond the first sentence below, and don't explain the flow.
+
+1. Ask the candidate to start the app with `npm run app` and open it in the browser.
+2. Say: *"This is a small online shop. Take about 5 minutes to get to know it, and think out loud."*
+3. If they can't log in, point them to `utils/testData.ts`. Finding the credentials is part of the exercise.
+4. After about 5 minutes, ask: *"Walk me through what a user can do. What would you test first, and why?"*
+5. Last 2 minutes: ask them to run `npm test` and say what the result means for the product. Expected result: 5 passed, 1 failed (TC-07).
+
+The app has this flow: log in → products → add to cart → cart → checkout (name and address) → order confirmation → orders → cancel an order (with a confirmation dialog).
+
+**What to watch:**
+- Do they find the full flow without help, and how quickly?
+- Do they notice details: the cart badge, the "added to cart" notification, the loading text on products, the disabled Checkout button on an empty cart, and the confirmation dialog when cancelling?
+- Do they try unhappy paths: wrong password, empty checkout form, empty cart?
+- Do they ask questions about the product or its users?
+- Do they link what they saw to `tests/TEST_PLAN.md` and the existing tests?
+- When stuck, what do they do: read the error, check the browser tools, or ask? Step in only after about 2 minutes.
+
+**Benchmark:** junior finds the main flow and a few details, with some prompting. Mid finds the flow alone, tries at least one unhappy path and notices the dialog and the loading state. Senior also looks at the network tab or the API, asks what data the tests depend on, and names risks (shared user, repeated orders).
+
+Carry what they noticed into the code review. For example, if they saw the confirmation dialog, ask about it again when you reach TC-07.
+
+---
+
+## 4. The 12 planted issues
 
 Level is who should spot it: **J** junior, **M** mid, **S** senior.
 
@@ -56,7 +83,7 @@ Level is who should spot it: **J** junior, **M** mid, **S** senior.
 7. **Auto-waiting** (M/S) – `OrdersPage.cancelOrder`
    - Issue: The `confirm()` dialog is never handled
    - Why it matters: Playwright dismisses dialogs by default, so nothing is cancelled. **This is why TC-07 fails**
-   - Hint: Exercise E1
+   - Hint: Exercise E1, or ask "What happens when you click Cancel in the browser?"
 8. **Session** (M) – `utils/helpers.ts`
    - Issue: Every test logs in through the UI
    - Why it matters: Slow, and re-tests login everywhere. Expected: `storageState` or API login
@@ -68,7 +95,7 @@ Level is who should spot it: **J** junior, **M** mid, **S** senior.
 10. **Data** (S) – `orders.spec.ts`
     - Issue: Hard-coded seed `ORDER_ID = 1001`
     - Why it matters: Can only pass once per app start. Reruns and parallel runs fail
-    - Hint: Exercise E1 follow-up
+    - Hint: Exercise E1 follow-up, or ask "What happens if you run the same test twice?"
 11. **Architecture / data** (M) – `checkout.spec.ts`
     - Issue: `describe.serial` with a shared `let orderId`
     - Why it matters: TC-06 can't run alone, and one failure skips the rest
@@ -82,9 +109,25 @@ Level is who should spot it: **J** junior, **M** mid, **S** senior.
 
 ---
 
-## 4. Hands-on exercises (40 minutes)
+## 5. Discussion (15 minutes, pick 4–5)
 
-The candidate can use the docs. Watch **how** they work (reading errors, using the trace) more than how fast.
+- **Architecture:** "This suite will grow to 300 tests. How do you organise folders, fixtures and page objects?" Strong: fixtures provide page objects and data; page objects hold locators and actions; specs assert.
+- **Architecture:** "How would you run this in CI?" Strong: on every PR, `@smoke` tag, sharding, HTML report and traces as artifacts, `forbidOnly`, no retries to hide flakes.
+- **Flaky tests:** "A test fails 1 in 20 runs. What do you do?" Strong: reproduce with `--repeat-each`, check the trace, fix the root cause, quarantine with a tag if needed. Not "add a retry or raise the timeout".
+- **Test layers:** "TC-02 loops through 6 invalid passwords in the browser, and each one fills in the form, submits it and waits for the error. What would you change?"
+  - Strong: keep one UI test for the error message, and move the password variants to the API (TC-03).
+  - Follow-up: "What does a UI test cover that an API test can't, and the other way round?" Strong: the UI test shows the error to the user; the API test covers the validation rules quickly and in detail.
+  - Follow-up: "If the 4th password fails, what happens to the other 2 in the loop?" Strong: they never run. Separate tests, or `test.describe` with parameters, report each variant on its own.
+  - Follow-up: "How would you decide which layer a new test belongs on?" Strong: test each rule at the lowest layer that can prove it, and use the UI only for what a user sees and does.
+- **Data:** "Generated or static test data? How do you clean up, and what if cleanup fails?"
+- **Session:** "How do you test admin and customer roles in one suite?" Strong: one `storageState` per role, or separate fixtures.
+- **Team:** "What would you ask the 3 developers for?" Strong: accessible labels and roles, a test-only API or seed data behind a flag, a stable test environment.
+
+---
+
+## 6. Hands-on exercises (optional, up to 30 minutes)
+
+Use these if there is time or you want to see the candidate work. Pick E1 plus E2 or E3; all three take 40 minutes, so skip some discussion items to fit them in. The candidate can use the docs. Watch **how** they work (reading errors, using the trace) more than how fast.
 
 ### E1 – Debug the failing test (10 min) · auto-waiting, debugging
 > "TC-07 fails. Find out why and fix it."
@@ -130,23 +173,7 @@ Reference: `solution/tests/fixtures/index.ts`, `solution/tests/api/ShopApi.ts`, 
 
 ---
 
-## 5. Discussion (15 minutes, pick 4–5)
-
-- **Architecture:** "This suite will grow to 300 tests. How do you organise folders, fixtures and page objects?" Strong: fixtures provide page objects and data; page objects hold locators and actions; specs assert.
-- **Architecture:** "How would you run this in CI?" Strong: on every PR, `@smoke` tag, sharding, HTML report and traces as artifacts, `forbidOnly`, no retries to hide flakes.
-- **Flaky tests:** "A test fails 1 in 20 runs. What do you do?" Strong: reproduce with `--repeat-each`, check the trace, fix the root cause, quarantine with a tag if needed. Not "add a retry or raise the timeout".
-- **Test layers:** "TC-02 loops through 6 invalid passwords in the browser, and each one fills in the form, submits it and waits for the error. What would you change?"
-  - Strong: keep one UI test for the error message, and move the password variants to the API (TC-03).
-  - Follow-up: "What does a UI test cover that an API test can't, and the other way round?" Strong: the UI test shows the error to the user; the API test covers the validation rules quickly and in detail.
-  - Follow-up: "If the 4th password fails, what happens to the other 2 in the loop?" Strong: they never run. Separate tests, or `test.describe` with parameters, report each variant on its own.
-  - Follow-up: "How would you decide which layer a new test belongs on?" Strong: test each rule at the lowest layer that can prove it, and use the UI only for what a user sees and does.
-- **Data:** "Generated or static test data? How do you clean up, and what if cleanup fails?"
-- **Session:** "How do you test admin and customer roles in one suite?" Strong: one `storageState` per role, or separate fixtures.
-- **Team:** "What would you ask the 3 developers for?" Strong: accessible labels and roles, a test-only API or seed data behind a flag, a stable test environment.
-
----
-
-## 6. Standard the solution follows
+## 7. Standard the solution follows
 
 Use this list to judge the candidate's changes. Optionally, hand it to them before E2 and E3.
 
