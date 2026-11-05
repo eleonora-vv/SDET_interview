@@ -15,15 +15,13 @@ Topics covered: architecture, data management, session management, page objects 
 
 ## 2. Plan
 
-| Time | Part |
-|---|---|
-| 0–5 | Intro, walk through the README |
-| 5–30 | **Code review.** The candidate reads the code and talks through it; you tick issues off section 3 |
-| 30–70 | **Hands-on.** Exercises E1, E2, E3 (section 4) |
-| 70–85 | **Discussion** (section 5) |
-| 85–90 | The candidate's questions |
+- **0–5 min:** Intro, walk through the README
+- **5–30 min:** **Code review.** The candidate reads the code and talks through it; you tick issues off section 3
+- **30–70 min:** **Hands-on.** Exercises E1, E2, E3 (section 4)
+- **70–85 min:** **Discussion** (section 5)
+- **85–90 min:** The candidate's questions
 
-Let them talk for about 10 minutes before you steer. Use the hint in each row of section 3 only if they skip a topic completely.
+Let them talk for about 10 minutes before you steer. Use the hint for each issue in section 3 only if they skip a topic completely.
 
 ---
 
@@ -31,20 +29,54 @@ Let them talk for about 10 minutes before you steer. Use the hint in each row of
 
 Level is who should spot it: **J** junior, **M** mid, **S** senior.
 
-| # | Topic | Where | Issue | Why it matters | Hint if missed | Level |
-|---|---|---|---|---|---|---|
-| 1 | Architecture | `utils/testData.ts`, page objects | URL hard-coded as `BASE_URL + '/login'`, no `baseURL` in config | Can't run against staging or CI environments | "How would you run this against staging?" | J |
-| 2 | Architecture | `playwright.config.ts` | `retries: 2` | Hides flaky tests, and a real failure takes 3× as long | "What does a retry tell you?" | M |
-| 3 | Locators | `LoginPage`, `OrdersPage`, `CheckoutPage` | XPath (`//*[@id="login-form"]/label[2]/input`, `td[3]`), CSS classes (`.btn.btn-primary`), ids, string selectors with `page.fill/click` | Brittle when markup or styling changes. Expected: `getByLabel`, `getByRole`, `Locator` | "What happens if a designer changes the button class?" | J |
-| 4 | Page objects | `LoginPage.verifyUserIsLoggedIn` | Assertion inside a page object | Mixes responsibilities. A good candidate gives an opinion and a reason | "Where should assertions live?" | M |
-| 5 | Auto-waiting | login, checkout, cart, orders | `waitForTimeout` of 1–3 s | Slow (about 4 s per login) and still not reliable | "Why 3 seconds?" | J |
-| 6 | Auto-waiting | `getCartCount`, `getErrorText`, `isOrderVisible`, `page.url()` | Reads a value once (`textContent`, `isVisible`) and then calls `expect(value)` | No retry; passes only because of the hard waits. Expected: `await expect(locator).toHaveText()` | "What if the badge updates 100 ms later?" | M |
-| 7 | Auto-waiting | `OrdersPage.cancelOrder` | The `confirm()` dialog is never handled | Playwright dismisses dialogs by default, so nothing is cancelled. **This is why TC-07 fails** | Exercise E1 | M/S |
-| 8 | Session | `utils/helpers.ts` | Every test logs in through the UI | Slow, and re-tests login everywhere. Expected: `storageState` or API login | "6 tests take about 45 s. Where does the time go?" | M |
-| 9 | Data | `utils/testData.ts` | One shared admin user, with credentials committed to the repo | Tests running in parallel use the same cart (TC-04 counts items while TC-05 adds some) | "What happens when 4 workers run at once?" | S |
-| 10 | Data | `orders.spec.ts` | Hard-coded seed `ORDER_ID = 1001` | Can only pass once per app start. Reruns and parallel runs fail | Exercise E1 follow-up | S |
-| 11 | Architecture / data | `checkout.spec.ts` | `describe.serial` with a shared `let orderId` | TC-06 can't run alone, and one failure skips the rest | "Can you run TC-06 on its own?" | M |
-| 12 | Test layers | `login.spec.ts` | TC-02 loops 6 invalid passwords through the UI | Slow, and stops at the first failure. Belongs at API level; keep 1 UI test. (TEST_PLAN already lists TC-03 as an API test) | "Look at TEST_PLAN. Which layer is TC-03?" | M |
+1. **Architecture** (J) – `utils/testData.ts`, page objects
+   - Issue: URL hard-coded as `BASE_URL + '/login'`, no `baseURL` in config
+   - Why it matters: Can't run against staging or CI environments
+   - Hint: "How would you run this against staging?"
+2. **Architecture** (M) – `playwright.config.ts`
+   - Issue: `retries: 2`
+   - Why it matters: Hides flaky tests, and a real failure takes 3× as long
+   - Hint: "What does a retry tell you?"
+3. **Locators** (J) – `LoginPage`, `OrdersPage`, `CheckoutPage`
+   - Issue: XPath (`//*[@id="login-form"]/label[2]/input`, `td[3]`), CSS classes (`.btn.btn-primary`), ids, string selectors with `page.fill/click`
+   - Why it matters: Brittle when markup or styling changes. Expected: `getByLabel`, `getByRole`, `Locator`
+   - Hint: "What happens if a designer changes the button class?"
+4. **Page objects** (M) – `LoginPage.verifyUserIsLoggedIn`
+   - Issue: Assertion inside a page object
+   - Why it matters: Mixes responsibilities. A good candidate gives an opinion and a reason
+   - Hint: "Where should assertions live?"
+5. **Auto-waiting** (J) – login, checkout, cart, orders
+   - Issue: `waitForTimeout` of 1–3 s
+   - Why it matters: Slow (about 4 s per login) and still not reliable
+   - Hint: "Why 3 seconds?"
+6. **Auto-waiting** (M) – `getCartCount`, `getErrorText`, `isOrderVisible`, `page.url()`
+   - Issue: Reads a value once (`textContent`, `isVisible`) and then calls `expect(value)`
+   - Why it matters: No retry; passes only because of the hard waits. Expected: `await expect(locator).toHaveText()`
+   - Hint: "What if the badge updates 100 ms later?"
+7. **Auto-waiting** (M/S) – `OrdersPage.cancelOrder`
+   - Issue: The `confirm()` dialog is never handled
+   - Why it matters: Playwright dismisses dialogs by default, so nothing is cancelled. **This is why TC-07 fails**
+   - Hint: Exercise E1
+8. **Session** (M) – `utils/helpers.ts`
+   - Issue: Every test logs in through the UI
+   - Why it matters: Slow, and re-tests login everywhere. Expected: `storageState` or API login
+   - Hint: "6 tests take about 45 s. Where does the time go?"
+9. **Data** (S) – `utils/testData.ts`
+   - Issue: One shared admin user, with credentials committed to the repo
+   - Why it matters: Tests running in parallel use the same cart (TC-04 counts items while TC-05 adds some)
+   - Hint: "What happens when 4 workers run at once?"
+10. **Data** (S) – `orders.spec.ts`
+    - Issue: Hard-coded seed `ORDER_ID = 1001`
+    - Why it matters: Can only pass once per app start. Reruns and parallel runs fail
+    - Hint: Exercise E1 follow-up
+11. **Architecture / data** (M) – `checkout.spec.ts`
+    - Issue: `describe.serial` with a shared `let orderId`
+    - Why it matters: TC-06 can't run alone, and one failure skips the rest
+    - Hint: "Can you run TC-06 on its own?"
+12. **Test layers** (M) – `login.spec.ts`
+    - Issue: TC-02 loops 6 invalid passwords through the UI
+    - Why it matters: Slow, and stops at the first failure. Belongs at API level; keep 1 UI test. (TEST_PLAN already lists TC-03 as an API test)
+    - Hint: "Look at TEST_PLAN. Which layer is TC-03?"
 
 **Benchmark for the review:** junior finds 3–5, mostly #1, #3 and #5. Mid finds 6–9 and explains why. Senior finds 10 or more, groups them by theme, and says what to fix first. Strong answer: data isolation and waiting before cosmetics.
 
@@ -135,17 +167,15 @@ Use this list to judge the candidate's changes. Optionally, hand it to them befo
 
 ## 8. Solution files
 
-| File | Shows |
-|---|---|
-| `playwright.config.ts` | `baseURL` from env, no retries, trace and screenshot on failure, setup project, test routes enabled via env |
-| `tests/api/ShopApi.ts` | Typed API client for seeding |
-| `tests/fixtures/index.ts` | `api` (shares the page's cookie), `newUser`, `user` (logged in through the API), `paidOrder`, page-object fixtures |
-| `tests/pages/*` | Role and label locators, no assertions, dialog handling |
-| `tests/setup/auth.setup.ts` + `specs/products.spec.ts` | `storageState` reuse for read-only tests |
-| `tests/specs/login.spec.ts` | 2 UI tests, with the invalid-password variants pushed down to the API (TC-03) |
-| `tests/specs/cart.spec.ts` | Web-first assertions; notification appears and disappears |
-| `tests/specs/checkout.spec.ts` | Independent tests seeded through the API |
-| `tests/specs/orders.spec.ts` | Own order per test; checks the UI and the backend |
+- `playwright.config.ts`: `baseURL` from env, no retries, trace and screenshot on failure, setup project, test routes enabled via env
+- `tests/api/ShopApi.ts`: Typed API client for seeding
+- `tests/fixtures/index.ts`: `api` (shares the page's cookie), `newUser`, `user` (logged in through the API), `paidOrder`, page-object fixtures
+- `tests/pages/*`: Role and label locators, no assertions, dialog handling
+- `tests/setup/auth.setup.ts` + `specs/products.spec.ts`: `storageState` reuse for read-only tests
+- `tests/specs/login.spec.ts`: 2 UI tests, with the invalid-password variants pushed down to the API (TC-03)
+- `tests/specs/cart.spec.ts`: Web-first assertions; notification appears and disappears
+- `tests/specs/checkout.spec.ts`: Independent tests seeded through the API
+- `tests/specs/orders.spec.ts`: Own order per test; checks the UI and the backend
 
 **Verified:**
 - typecheck passes
