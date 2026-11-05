@@ -1,6 +1,6 @@
 # Interviewer Guide – Playwright + TypeScript (90 minutes)
 
-**Share only `qa-interview` with the candidate.** Keep this guide and `solution/` to yourself.
+Share the repository from `main` branch with the candidate during live interview. Keep this guide and `solution/` to yourself.
 
 Topics covered: architecture, data management, session management, page objects and locators, and auto-waiting.
 
@@ -8,9 +8,9 @@ Topics covered: architecture, data management, session management, page objects 
 
 ## 1. Before the interview
 
-1. Unzip `qa-interview.zip` and run `npm install`, then `npx playwright install chromium`, then `npm test`.
+1. Run `npm install`, then `npx playwright install chromium`, then `npm test`.
    Expected result: **5 passed, 1 failed (TC-07)**. The failure is intentional.
-2. Send the repo to the candidate 15 minutes before the interview, or share your screen.
+2. Share your screen with the assignment.
 3. Keep `solution/` open on your side. It follows the team conventions listed in section 6. It has 14 tests plus a setup step, all green, verified with `--repeat-each=20`.
 
 ## 2. Plan
