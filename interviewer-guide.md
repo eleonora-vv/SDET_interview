@@ -90,7 +90,7 @@ The candidate can use the docs. Watch **how** they work (reading errors, using t
 > "TC-07 fails. Find out why and fix it."
 
 - **Good process:** run only that test, open the report, rerun with `--ui`, `--debug` or `--trace on`, and spot the dialog.
-- **Fix:** add `page.once('dialog', d => d.accept())` before the click. Replace `waitForTimeout` plus `getOrderStatus` with `await expect(statusCell).toHaveText('Cancelled')`.
+- **Fix:** tell Playwright to accept the confirmation dialog before clicking Cancel. Then wait for the status to change to "Cancelled" instead of using a fixed wait.
 - **Follow-up (leads into E3):** start the app with `npm run app` and run the fixed test twice. The second run fails. Ask: *"Why? How do you make it repeatable?"*
 
 ### E2 – Rewrite `LoginPage` and fix TC-04 (15 min) · page objects, locators, auto-waiting
