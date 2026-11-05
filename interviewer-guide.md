@@ -135,7 +135,11 @@ Reference: `solution/tests/fixtures/index.ts`, `solution/tests/api/ShopApi.ts`, 
 - **Architecture:** "This suite will grow to 300 tests. How do you organise folders, fixtures and page objects?" Strong: fixtures provide page objects and data; page objects hold locators and actions; specs assert.
 - **Architecture:** "How would you run this in CI?" Strong: on every PR, `@smoke` tag, sharding, HTML report and traces as artifacts, `forbidOnly`, no retries to hide flakes.
 - **Flaky tests:** "A test fails 1 in 20 runs. What do you do?" Strong: reproduce with `--repeat-each`, check the trace, fix the root cause, quarantine with a tag if needed. Not "add a retry or raise the timeout".
-- **Test layers:** "What would you do with TC-02?" Strong: move the variants to the API (TC-03), keep one UI test.
+- **Test layers:** "TC-02 loops through 6 invalid passwords in the browser, and each one fills in the form, submits it and waits for the error. What would you change?"
+  - Strong: keep one UI test for the error message, and move the password variants to the API (TC-03).
+  - Follow-up: "What does a UI test cover that an API test can't, and the other way round?" Strong: the UI test shows the error to the user; the API test covers the validation rules quickly and in detail.
+  - Follow-up: "If the 4th password fails, what happens to the other 2 in the loop?" Strong: they never run. Separate tests, or `test.describe` with parameters, report each variant on its own.
+  - Follow-up: "How would you decide which layer a new test belongs on?" Strong: test each rule at the lowest layer that can prove it, and use the UI only for what a user sees and does.
 - **Data:** "Generated or static test data? How do you clean up, and what if cleanup fails?"
 - **Session:** "How do you test admin and customer roles in one suite?" Strong: one `storageState` per role, or separate fixtures.
 - **Team:** "What would you ask the 3 developers for?" Strong: accessible labels and roles, a test-only API or seed data behind a flag, a stable test environment.
